@@ -4,28 +4,28 @@ require_once 'config.php';
 
 // Verificar si se ha proporcionado un ID válido en la URL
 if (isset($_GET['id']) && is_numeric($_GET['id'])) {
-    $idEntrada = $_GET['id']; 
+    $idEstudiante = $_GET['id']; 
 
-    // Obtener los datos de la entrada con el ID proporcionado
+    // Obtener los datos de la Estudiante con el ID proporcionado
     try {
-        $queryObtenerEntrada = "SELECT * FROM entradas WHERE ID = :id";
-        $stmt = $conexion->prepare($queryObtenerEntrada);
-        $stmt->bindParam(':id', $idEntrada);
+        $queryObtenerEstudiante = "SELECT * FROM estudiantes WHERE ID = :id";
+        $stmt = $conexion->prepare($queryObtenerEstudiante);
+        $stmt->bindParam(':id', $idEstudiante);
         $stmt->execute();
 
         if ($stmt->rowCount() === 1) {
             $entrada = $stmt->fetch(PDO::FETCH_ASSOC);
 
         } else {
-            echo "Entrada no encontrada.";
+            echo "Estudiante no encontrado.";
             exit;
         }
     } catch (PDOException $e) {
-        echo "Error al obtener la entrada: " . $e->getMessage();
+        echo "Error al obtener el estudiante: " . $e->getMessage();
         exit;
     }
 } else {
-    echo "ID de entrada no válido.";
+    echo "ID de estudiante no válido.";
     exit;
 }
 
@@ -51,8 +51,8 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
                 <?php
                     // Mostrar confirmación de borrado
                     echo "<h2>Confirmar Borrado</h2>";
-                    echo "<p>¿Estás seguro de que deseas borrar la entrada con ID {$idEntrada}?</p>";
-                    echo "<a href='eliminar.php?id={$idEntrada}' class='btn btn-danger'>Sí, Borrar</a> ";
+                    echo "<p>¿Estás seguro de que deseas borrar la entrada con ID {$idEstudiante}?</p>";
+                    echo "<a href='eliminar.php?id={$idEstudiante}' class='btn btn-danger'>Sí, Borrar</a> ";
                     echo "<a href='index.php' class='btn btn-secondary'>Cancelar</a>";
                 ?>
             </div>

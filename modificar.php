@@ -4,21 +4,23 @@ require_once 'config.php';
 
 // Verificar si se ha proporcionado un ID válido en la URL
 if (isset($_GET['id']) && is_numeric($_GET['id'])) {
-    $idEntrada = $_GET['id']; 
+    $idEstudiante = $_GET['id']; 
 
-    // Obtener los datos de la entrada con el ID proporcionado
+    // Obtener los datos de el estudiante con el ID proporcionado
     try {
-        $queryObtenerEntrada = "SELECT * FROM entradas WHERE ID = :id";
-        $stmt = $conexion->prepare($queryObtenerEntrada);
-        $stmt->bindParam(':id', $idEntrada);
+        $queryObtenerEstudiante = "SELECT * FROM estudiantes WHERE ID = :id";
+        $stmt = $conexion->prepare($queryObtenerEstudiante);
+        $stmt->bindParam(':id', $idEstudiante);
         $stmt->execute();
 
         if ($stmt->rowCount() === 1) {
-            $entrada = $stmt->fetch(PDO::FETCH_ASSOC);
-            $autor = $entrada['autor'];
-            $titulo = $entrada['titulo'];
-            $categoria_id = $entrada['categoria_id'];
-            $descripcion = $entrada['descripcion'];
+            $estudiante = $stmt->fetch(PDO::FETCH_ASSOC);
+            $expediente = $estudiante['expediente'];
+            $nif = $estudiante['nif'];
+            $nombre = $estudiante['nombre'];
+            $apellidos = $estudiante['apellidos'];
+            $email = $estudiante['email'];
+            $movil = $estudiante['movil'];
 
         } else {
             echo "Entrada no encontrada.";
@@ -37,32 +39,34 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
 // Verificar si el formulario ha sido enviado mediante el método POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Obtener los datos del formulario
-    $autor = $_POST['autor'];
-    $titulo = $_POST['titulo'];
-    $categoria_id = $_POST['categoria'];
-    $descripcion = $_POST['descripcion'];
+    $expediente = $_POST['expediente'];
+    $nif = $_POST['nif'];
+    $nombre = $_POST['nombre'];
+    $apellidos = $_POST['apellidos'];
+    $email = $_POST['email'];
+    $movil = $_POST['movil'];
 
-    $imagen = ''; // Inicializar con un valor predeterminado
-    if ($_FILES['imagen']['error'] == 0) {
-        $imagen = 'imagenes/' . uniqid() . '_' . htmlspecialchars(basename($_FILES['imagen']['name']), ENT_QUOTES, 'UTF-8');
-        move_uploaded_file($_FILES['imagen']['tmp_name'], $imagen);
+    $foto = ''; // Inicializar con un valor predeterminado
+    if ($_FILES['foto']['error'] == 0) {
+        $foto = 'fotos/' . uniqid() . '_' . htmlspecialchars(basename($_FILES['foto']['name']), ENT_QUOTES, 'UTF-8');
+        move_uploaded_file($_FILES['foto']['tmp_name'], $foto);
     }
-
-    // Puedes hacer validaciones adicionales aquí antes de insertar en la base de datos
 
     try {
         // Actualizar los campos de la entrada en la base de datos
-        $queryActualizarEntrada = "UPDATE entradas SET autor = :autor, titulo = :titulo, categoria_id = :categoria, descripcion = :descripcion, imagen = :imagen WHERE ID = :id";
-        $stmt = $conexion->prepare($queryActualizarEntrada);
-        $stmt->bindParam(':id', $idEntrada);
-        $stmt->bindParam(':autor', $autor);
-        $stmt->bindParam(':titulo', $titulo);
-        $stmt->bindParam(':categoria', $categoria_id);
-        $stmt->bindParam(':descripcion', $descripcion);
-        $stmt->bindParam(':imagen', $imagen);
+        $queryActualizarEstudiante = "UPDATE estudiantes SET expediente = :expediente, nif = :nif, nombre = :nombre, apellidos = :apellidos, email = :email, movil = :movil, foto = :foto WHERE ID = :id";
+        $stmt = $conexion->prepare($queryActualizarEstudiante);
+        $stmt->bindParam(':id', $idEstudiante);
+        $stmt->bindParam(':expediente', $expediente);
+        $stmt->bindParam(':nif', $nif);
+        $stmt->bindParam(':nombre', $nombre);
+        $stmt->bindParam(':apellidos', $apellidos);
+        $stmt->bindParam(':email', $email);
+        $stmt->bindParam(':movil', $movil);
+        $stmt->bindParam(':foto', $foto);
         $stmt->execute();
 
-        $confirmacion = '<div class="alert alert-success w-75 text-center">Entrada modificada correctamente</div>';
+        $confirmacion = '<div class="alert alert-success w-75 text-center">Estudiante modificado correctamente</div>';
     } catch (PDOException $e) {
         echo "Error al actualizar la entrada: " . $e->getMessage();
     }
@@ -87,37 +91,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="row bg-light">
         <div class="col-12">
             <form method="POST" action="" enctype="multipart/form-data" class="p-5 m-5 needs-validation" novalidate>
-                <label class="form-label" for="autor"><strong>Autor:</strong></label>
-                <input class="form-control w-50" type="text" name="autor" value="<?php echo $autor; ?>" required><br>
+                <label class="form-label" for="expediente"><strong>Expediente:</strong></label>
+                <input class="form-control w-50" type="text" name="expediente" value="<?php echo $expediente; ?>" required><br>
 
-                <label class="form-label" for="titulo"><strong>Título:</strong></label>
-                <input class="form-control w-50" type="text" name="titulo" value="<?php echo $titulo; ?>" required><br>
+                <label class="form-label" for="nif"><strong>NIF:</strong></label>
+                <input class="form-control w-50" type="text" name="nif" value="<?php echo $nif; ?>" required><br>
 
-                <label class="form-label" for="categoria"><strong>Categoría:</strong></label>
-                <select class="form-select w-50" name="categoria" required>
-                    <!-- Aquí puedes obtener las categorías de la base de datos y generar opciones -->
-                    <?php
-                    $queryCategorias = "SELECT * FROM categorias";
-                    $stmtCategorias = $conexion->query($queryCategorias);
-                    while ($categoria = $stmtCategorias->fetch(PDO::FETCH_ASSOC)) {
-                        $selected = ($categoria['id'] == $categoria_id) ? 'selected' : '';
-                        echo "<option value='{$categoria['id']}' {$selected}>" . htmlspecialchars($categoria['nombre'], ENT_QUOTES, 'UTF-8') . "</option>";
-                    }
-                    ?>
-                </select><br>
+                <label class="form-label" for="nombre"><strong>Nombre:</strong></label><br>
+                <input class="form-control w-50" type="text" name="nombre" value="<?php echo $nombre; ?>" required><br>
 
-                <label class="form-label" for="descripcion"><strong>Descripción:</strong></label><br>
-                <textarea class="form-control" id="descripcion" name="descripcion" rows="4" required><?php echo $descripcion; ?></textarea><br>
-                <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
-                <script>
-                        CKEDITOR.replace('descripcion');
-                </script>
+                <label class="form-label" for="apellidos"><strong>Apellidos:</strong></label><br>
+                <input class="form-control w-50" type="text" name="apellidos" value="<?php echo $apellidos; ?>" required><br>
+                
+                <label class="form-label" for="email"><strong>Email:</strong></label><br>
+                <input class="form-control w-50" type="text" name="email" value="<?php echo $email; ?>" required><br>
 
-                <label class="form-label" for="imagen"><strong>Imagen:</strong></label>
-                <input class="form-control" type="file" name="imagen" accept="image/*">
-                <p class="form-text">Necesario subir imagen de nuevo</p><br>
+                <label class="form-label" for="movil"><strong>Movil:</strong></label><br>
+                <input class="form-control w-50" type="text" name="movil" value="<?php echo $movil; ?>" required><br>
 
-                <input class="btn btn-primary" type="submit" value="Modificar Entrada">
+                <label class="form-label" for="foto"><strong>Foto:</strong></label>
+                <input class="form-control" type="file" name="foto" accept="image/*">
+                <p class="form-text">Necesario subir foto de nuevo</p><br>
+
+                <input class="btn btn-primary" type="submit" value="Modificar Estudiante">
                 <?php
                 if (!empty($confirmacion)) {
                     echo "<p>$confirmacion</p>";

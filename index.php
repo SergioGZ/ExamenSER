@@ -3,34 +3,15 @@ session_start();
 require_once 'config.php';
 
 try {
-    // Consulta SQL con INNER JOIN para obtener datos de entradas, categorías y usuarios
+
     $query = "
-        SELECT entradas.ID, entradas.autor, entradas.titulo, entradas.descripcion, categorias.nombre AS categoria, entradas.fecha, entradas.imagen
-        FROM entradas
-        INNER JOIN categorias ON entradas.categoria_id = categorias.id
+        SELECT id, expediente, nif, nombre, apellidos, email, movil, foto
+        FROM estudiantes
     ";
-    $stmtEntradas = $conexion->query($query);
-    $stmtEntradas->execute();
+    $stmtEstudiantes = $conexion->query($query);
+    $stmtEstudiantes->execute();
 } catch (PDOException $e) {
     echo "Error al realizar la consulta de la tabla entradas: " . $e->getMessage();
-}
-
-try {
-    // Consulta SQL para tabla categorias
-    $query = "SELECT * FROM categorias";
-    $stmtCategorias = $conexion->query($query);
-    $stmtCategorias->execute();
-} catch (PDOException $e) {
-    echo "Error al realizar la consulta de la tabla usuarios: " . $e->getMessage();
-}
-
-try {
-    // Consulta SQL para tabla categorias
-    $query = "SELECT * FROM categorias";
-    $stmtCategorias = $conexion->query($query);
-    $stmtCategorias->execute();
-} catch (PDOException $e) {
-    echo "Error al realizar la consulta de la tabla usuarios: " . $e->getMessage();
 }
 
 ?>
@@ -56,45 +37,37 @@ try {
 
     <div class="row">
         <div class="col-12 w-50 my-5">
-            <a class="btn btn-primary float-start text-center me-3" href="crearentrada.php">Añadir entrada</a>
-            <a class="btn btn-primary float-start text-center" href="crearcategoria.php">Añadir categoría</a>
+            <a class="btn btn-primary float-start text-center me-3" href="crearestudiante.php">Añadir estudiante</a>
         </div>
     </div>
 
     <div class="row bg-light">
         <div class="col-12">
             <?php
-            // Mostrar la tabla entradas
             echo
-            "<h1>Entradas</h1>
+            "<h1>Estudiantes</h1>
             <table id='tabla' class='table table-responsive table-striped datatable col-12'>
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Título</th>
-                        <th>Descripción</th>
-                        <th>Categoría</th>
-                        <th>Autor</th>
-                        <th>Fecha</th>
-                        <th>Imagen</th>
+                        <th>Email</th>
+                        <th>Nombre</th>
+                        <th>Apellidos</th>
+                        <th>Foto</th>
                         <th>Operaciones</th>
                     </tr>
                 </thead>
 
                 <tbody>";
-            while ($entrada = $stmtEntradas->fetch(PDO::FETCH_ASSOC)) {
+            while ($estudiante = $stmtEstudiantes->fetch(PDO::FETCH_ASSOC)) {
                 echo "<tr>
-                        <td>{$entrada['ID']}</td>
-                        <td>{$entrada['titulo']}</td>
-                        <td style='max-width: 200px;'>{$entrada['descripcion']}</td>
-                        <td>{$entrada['categoria']}</td>
-                        <td>{$entrada['autor']}</td>
-                        <td>{$entrada['fecha']}</td>
-                        <td><img src='{$entrada['imagen']}' alt='Sin imagen' style='max-width: 50px; max-height: 50px;'></td>
+                        <td>{$estudiante['email']}</td>
+                        <td>{$estudiante['nombre']}</td>
+                        <td>{$estudiante['apellidos']}</td>
+                        <td><img src='{$estudiante['foto']}' alt='Sin imagen' style='max-width: 50px; max-height: 50px;'></td>
                         <td>
-                            <a href='listar.php?id={$entrada['ID']}' class='btn btn-primary'><i class='bi bi-eye-fill'></i></a>
-                            <a href='modificar.php?id={$entrada['ID']}' class='btn btn-primary'><i class='bi bi-pencil-square'></i></a>
-                            <a href='borrar.php?id={$entrada['ID']}' class='btn btn-danger'><i class='bi bi-trash'></i></a>
+                            <a href='listar.php?id={$estudiante['id']}' class='btn btn-primary'><i class='bi bi-eye-fill'></i></a>
+                            <a href='modificar.php?id={$estudiante['id']}' class='btn btn-primary'><i class='bi bi-pencil-square'></i></a>
+                            <a href='borrar.php?id={$estudiante['id']}' class='btn btn-danger'><i class='bi bi-trash'></i></a>
                         </td>
                     </tr>";
             }
@@ -103,38 +76,6 @@ try {
                 </table>";
 
                 
-            ?>
-        </div>
-    </div>
-
-    <div class="row bg-light mt-5">
-        <div class="col-12">
-            <?php
-            // Mostrar la tabla categorias
-            echo
-            "<h1>Categorías</h1>
-            <table id='tabla3' class='table table-responsive table-striped datatable col-12'>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Nombre</th>
-                        <th style='max-width:100px;'>Operaciones</th>
-                    </tr>
-                </thead>
-
-                <tbody>";
-            while ($categoria = $stmtCategorias->fetch(PDO::FETCH_ASSOC)) {
-                echo "<tr>
-                        <td>{$categoria['id']}</td>
-                        <td>{$categoria['nombre']}</td>
-                        <td>
-                        <a href='borrarCategoria.php?id={$categoria['id']}' class='btn btn-danger'><i class='bi bi-trash'></i></a>";
-                        echo "</td>
-                        </tr>";
-            }
-
-            echo "</tbody>
-                </table>";
             ?>
         </div>
     </div>

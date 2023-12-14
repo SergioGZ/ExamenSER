@@ -5,82 +5,84 @@ require 'TCPDF/tcpdf.php';
 
 // Verificar si se ha proporcionado un ID válido en la URL
 if (isset($_GET['id']) && is_numeric($_GET['id'])) {
-    $idEntrada = $_GET['id'];
+    $idEstudiante = $_GET['id'];
 
     $query = "
         SELECT 
-            entradas.ID,
-            entradas.titulo,
-            entradas.descripcion,
-            categorias.nombre AS categoria,
-            entradas.autor,
-            entradas.fecha,
-            entradas.imagen
-        FROM entradas
-        INNER JOIN categorias ON entradas.categoria_id = categorias.id
-        WHERE entradas.ID = :id
+            id,
+            expediente,
+            nif,
+            nombre,
+            apellidos,
+            email,
+            movil,
+            foto
+        FROM estudiantes
+        WHERE id = :id
     ";
     $stmt = $conexion->prepare($query);
-    $stmt->bindParam(':id', $idEntrada);
+    $stmt->bindParam(':id', $idEstudiante);
     $stmt->execute();
 
-    // Verificar si se encontró la entrada
+    // Verificar si se encontró la estudiante
     if ($stmt->rowCount() === 1) {
-        // Obtener los datos de la entrada
-        $entrada = $stmt->fetch(PDO::FETCH_ASSOC);
+        // Obtener los datos de la estudiante
+        $estudiante = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        // Aquí puedes mostrar los datos de la entrada
-        $id = $entrada['ID'];
-        $titulo = $entrada['titulo'];
-        $categoria = $entrada['categoria'];
-        $descripcion = $entrada['descripcion'];
-        $autor = $entrada['autor'];
-        $fecha = $entrada['fecha'];
+        // Aquí puedes mostrar los datos de la estudiante
+        $id = $estudiante['id'];
+        $expediente = $estudiante['expediente'];
+        $nif = $estudiante['nif'];
+        $nombre = $estudiante['nombre'];
+        $apellidos = $estudiante['apellidos'];
+        $email = $estudiante['email'];
+        $movil = $estudiante['movil'];
         // Mostrar la imagen si está definida
-        if (!empty($entrada['imagen'])) {
-            $imagen =  $entrada['imagen'];
+        if (!empty($estudiante['foto'])) {
+            $foto =  $estudiante['foto'];
         } else {
-            $imagen =  "No hay imagen disponible.";
+            $foto =  "No hay foto disponible.";
         }
     } else {
-        echo "No se encontró la entrada.";
+        echo "No se encontró el estudiante.";
     }
 } else {
-    echo "ID de entrada no proporcionado.";
+    echo "ID de estudiante no proporcionado.";
 }
 
-function generarPDF($id, $autor, $titulo, $descripcion, $imagen, $fecha)
+function generarPDF($id, $expediente, $nif, $nombre, $apellidos, $email, $movil, $foto)
 {
     // Crear una instancia de TCPDF
     $pdf = new TCPDF();
 
     // Establecer metadatos del documento
     $pdf->SetCreator($id);
-    $pdf->SetAuthor($autor);
-    $pdf->SetTitle($titulo);
+    $pdf->SetAuthor($nombre);
+    $pdf->SetTitle($expediente);
 
     // Agregar una página al PDF
     $pdf->AddPage();
 
     // Agregar texto al PDF
     $pdf->SetFont('times', '', 12);
-    $pdf->Cell(0, 10, $fecha, 0, 1);
-    $pdf->Cell(0, 10, $autor, 0, 1);
-    $pdf->Cell(0, 10, $titulo, 0, 1);
-    $pdf->Cell(0, 10, $descripcion, 0, 1);
+    $pdf->Cell(0, 10, $nif, 0, 1);
+    $pdf->Cell(0, 10, $nombre, 0, 1);
+    $pdf->Cell(0, 10, $apellidos, 0, 1);
+    $pdf->Cell(0, 10, $email, 0, 1);
+    $pdf->Cell(0, 10, $movil, 0, 1);
 
     // Agregar una imagen al PDF
-    $imagePath = $imagen; // Reemplaza con la ruta de tu imagen
+    $imagePath = $foto; // Reemplaza con la ruta de tu imagen
     $pdf->Image($imagePath, 10, 60, 80, 60, 'JPEG'); // Parámetros: URL/ruta, x, y, ancho, alto, formato
 
     // Guardar el PDF en el servidor o mostrarlo en el navegador
-    $pdf->Output('entrada.pdf', 'I');
+    $pdf->Output('estudiante.pdf', 'I');
 }
 
 // Verificar si se ha enviado la solicitud
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Llamar a la función para generar el PDF cuando se reciba la solicitud
-    generarPDF($id, $autor, $titulo, $descripcion, $imagen, $fecha);
+    generarPDF($id, $expediente, $nif, $nombre, $apellidos, $email, $movil, $foto);
 }
 
 ?>
@@ -100,14 +102,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <body class="bg-secondary">
     <?php include 'includes/header.html'; ?>
-    <div class="row">
+    <div class="row bg-light">
         <div class="col-12">
             <div class="container mt-3">
-                <h2 class="d-flex justify-content-start">Entrada #<?php echo $id; ?></h2>
-                <h1 class="d-flex justify-content-center"><?php echo $titulo; ?></h1>
-                <img class="w-50 d-flex mx-auto" src="<?php echo $imagen; ?>" alt="Entrada" />
-                <div class="descipcion d-flex justify-content-center mx-auto mt-3 w-75">
-                    <p class="text-justify"><?php echo $descripcion; ?></p>
+                <h2 class="d-flex justify-content-start">Estudiante #<?php echo $id; ?></h2>
+                <h1 class="d-flex justify-content-center"><?php echo $expediente; ?></h1>
+                <img class="w-50 d-flex mx-auto" src="<?php echo $foto; ?>" alt="Entrada" />
+                <div class="descipcion justify-content-center mx-auto mt-3 w-75">
+                    <p class="text-justify"><?php echo $nif; ?></p>
+                    <p class="text-justify"><?php echo $nombre; ?></p>
+                    <p class="text-justify"><?php echo $apellidos; ?></p>
+                    <p class="text-justify"><?php echo $email; ?></p>
+                    <p class="text-justify"><?php echo $movil; ?></p>
                 </div>
             </div>
             <form action="" method="post">
