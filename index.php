@@ -24,6 +24,15 @@ try {
     echo "Error al realizar la consulta de la tabla usuarios: " . $e->getMessage();
 }
 
+try {
+    // Consulta SQL para tabla categorias
+    $query = "SELECT * FROM categorias";
+    $stmtCategorias = $conexion->query($query);
+    $stmtCategorias->execute();
+} catch (PDOException $e) {
+    echo "Error al realizar la consulta de la tabla usuarios: " . $e->getMessage();
+}
+
 ?>
 
 
@@ -90,6 +99,40 @@ try {
                     </tr>";
             }
             
+            echo "</tbody>
+                </table>";
+
+                
+            ?>
+        </div>
+    </div>
+
+    <div class="row bg-light mt-5">
+        <div class="col-12">
+            <?php
+            // Mostrar la tabla categorias
+            echo
+            "<h1>Categorías</h1>
+            <table id='tabla3' class='table table-responsive table-striped datatable col-12'>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th style='max-width:100px;'>Operaciones</th>
+                    </tr>
+                </thead>
+
+                <tbody>";
+            while ($categoria = $stmtCategorias->fetch(PDO::FETCH_ASSOC)) {
+                echo "<tr>
+                        <td>{$categoria['id']}</td>
+                        <td>{$categoria['nombre']}</td>
+                        <td>
+                        <a href='borrarCategoria.php?id={$categoria['id']}' class='btn btn-danger'><i class='bi bi-trash'></i></a>";
+                        echo "</td>
+                        </tr>";
+            }
+
             echo "</tbody>
                 </table>";
             ?>
